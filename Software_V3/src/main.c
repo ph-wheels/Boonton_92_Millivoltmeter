@@ -28,6 +28,8 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
+#define PCB_REV_2_2       1
+
 /* ================= Pin configuration ================= */
 #define OUT_PIN_Ph_A      GPIO_NUM_19   // phase A output may need to be swapped with phase B for syncronous chopper operation
 #define OUT_PIN_Ph_B      GPIO_NUM_18   // phase B output may need to be swapped with phase A for syncronous chopper operation
@@ -37,7 +39,11 @@
 #define OUT_PIN_30mV      GPIO_NUM_25
 #define OUT_PIN_100mV     GPIO_NUM_26
 #define OUT_PIN_300mV     GPIO_NUM_27
-#define OUT_PIN_1000mV    GPIO_NUM_14  // <== true for Rev2.2 PCB, rev 2.7 requires GPIO_NUM_23
+#ifdef PCB_REV_2_2
+  #define OUT_PIN_1000mV    GPIO_NUM_14  // <== true for Rev2.2 PCB, rev 2.7 requires GPIO_NUM_23
+#else
+  #define OUT_PIN_1000mV    GPIO_NUM_23  // <== true for Rev2.2 PCB, rev 2.7 requires GPIO_NUM_23
+#endif
 #define OUT_PIN_3000mV    GPIO_NUM_21
 
 #define IN_PIN_C_2        GPIO_NUM_16   // inputs from the 92BD's internal chooper connector
