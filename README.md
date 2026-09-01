@@ -13,11 +13,11 @@ Jacques Audet based on pref board with the proper connector suitable for the 92 
 I started off by making a PCB for it but never build one myself so far.
 
 As part of another project I became interested in the usage of SSR which used Mosfet's and
-it's drive circuit being electrically isolated from the signal. These device can driven with
+it's drive circuit being electrically isolated from the signal. These device can be driven with
 a few mA and the mosfet will turn on within a uS and have a very low R-on resistance.
 
 The idea to replace the chopper tube with 2 SSR's (both within one physical package) was born
-and my initial mcu based extension board for the auto-ranging was replace by a new pcb which
+and my initial mcu based extension board for the auto-ranging was replaced by a new pcb which
 would take care of both: the already working auto-ranging and the drive circuit for the SSR.
 
 As signal levels are fairly low and any noise influence has to be avoided I made an additional
@@ -59,8 +59,8 @@ to be connected to the ground pad's of C1 & C3 and the SSR then using some small
 connector and the analog main PCB. Reason for the cut out SSR PCB is to reduce PCB fabrication cost and the main
 PCB has so much real estate left unused that this was an obvious choice to make.
 
-Addition as of aug-30-2026 a totally redesigned firmware is currently in test mode as early test look promising
-as it resulted in a improved signal stability, cleaner code, isolation between tasks like auto-range, SSR driver,
-menu system with parameter storage due to the use of FreeRTOS.
+Additional as of aug-30-2026 a totally redesigned firmware is currently made available, early tests look promising,
+as it has resulted in a improved signal stability, cleaner code, solid isolation between tasks like auto-range,
+SSR driver, menu system with parameter storage due to the use of Espressif ESP32 FreeRTOS being a code game changer
 
 Have fun building
