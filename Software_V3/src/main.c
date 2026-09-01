@@ -69,11 +69,13 @@
 #define DEAD_TIME_MIN_US     40U
 #define DEAD_TIME_MAX_US     200U     // was 5000U -- hard ceiling now matches the default cap
 
-#define VERSION "3.0.4"      // 3.0.0 initial freeRTOS implementation
+#define VERSION "3.0.5"      // 3.0.0 initial freeRTOS implementation
                              // 3.0.1 adjusted selectable range of various parameter for NVS
                              // 3.0.2cleanup of menu wording / layot
                              // 3.0.3 dropped usage of input CMD & M42
                              // 3.0.4 added log gate functionality
+                             // 3.0.5 conditional usage of GPIO_NUM_14 
+                             //       or GPIO_NUM_23 for OUT_PIN_1000mV based on PCB_REV_2_2 define
 
 #define NVS_KEY_DEADTIME     "dead_time_us"
 #define NVS_KEY_ADC_LOW      "adc_low_mv"
