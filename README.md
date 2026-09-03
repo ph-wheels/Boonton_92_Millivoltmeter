@@ -1,4 +1,4 @@
-# How to Fix & Add an Auto-Range Option to Your HP/Boonton 92 Series RF Millivolt Meter
+# How to Fix & Add an Auto-Range Option to Your Boonton 92 Series RF Millivolt Meter
 
 ## Background
 
