@@ -1,53 +1,64 @@
-# Boonton 92 series
+# How to Fix & Add an Auto-Range Option to Your HP/Boonton 92 Series RF Millivolt Meter
 
-<ins>How to fix & add auto range option to your 92 series RF Millivolt Meter</ins>
+## Background
 
-Some years ago I came across a 92BD RF Millivolt meter which was in reasonable condition
-but after some time started to produce some issue which indiicated that the chopper tube
-was close to end of life and obviously these are no longer available which kind meant that
-the meter was no longer usable.
+Some years ago I came across a 92BD RF Millivolt Meter in reasonably good condition. After a while it started showing problems that indicated the chopper tube was nearing end of life. Since these tubes are no longer available, the meter was effectively unusable.
 
-I came across an possible solution being the total replacement of the front end with a new
-a couple of low drift op-amps and it's associated gain selection, the design was made by
-Jacques Audet based on pref board with the proper connector suitable for the 92 series back-plane.
-I started off by making a PCB for it but never build one myself so far.
+I found a possible solution: replace the entire front end with a couple of low-drift op-amps and their associated gain-selection circuitry. This design was created by Jacques Audet, built on perfboard with a connector suitable for the 92 series backplane. I started laying out a PCB for it, but never actually built one.
 
-As part of another project I became interested in the usage of SSR which used Mosfet's and
-it's drive circuit being electrically isolated from the signal. These device can be driven with
-a few mA and the mosfet will turn on within a uS and have a very low R-on resistance.
+## The SSR Idea
 
-The idea to replace the chopper tube with 2 SSR's (both within one physical package) was born
-and my initial mcu based extension board for the auto-ranging was replaced by a new pcb which
-would take care of both: the already working auto-ranging and the drive circuit for the SSR.
+As part of another project, I became interested in solid-state relays (SSRs) that use MOSFETs, with the drive circuit electrically isolated from the signal. These devices can be driven with just a few mA, the MOSFET turns on within a microsecond, and it has very low Rds(on) resistance.
 
-As signal levels are fairly low and any noise influence has to be avoided I made an additional
-small PCB which is directly mounted behind the signal input connector with fairly short leads 
-to the SSR PCB and one lead to the original analog input on the back-plane.
-A set of controle wires being twisted are fed from the SSR PCB to a couple of free pin
-on the back-plane connector J103 which was originally intended to hold the auto ranging board.
-On this connector we also need to make one additional connection being a jumper wire to provide
-5V dc to the auto ranging connector j103.
+That's when the idea came up: replace the chopper tube with two SSRs (both housed in a single physical package). My original MCU-based auto-ranging extension board was redesigned into a new PCB that would handle both:
 
-The current design consist of two part being: the auto-ranging circuit and the SSR control circuit
-which are both controlled by the MCU for which I used the ESP32 (and Yes both BT & WiFi are being
-turned off) and the MCU choice was based on previous projects and it large amount of IO pins.
+- The (already working) auto-ranging function
+- The drive circuit for the SSRs
 
-As the 92 series RF meter is using negative control voltage (up to -15 V dc) and the MCU it's pins
-are only 3.3 V dc tolerant we are using 9 optocouplers (8 for the range selection and 1 for auto
-range mode) to overcome the difference in control voltages. All what's needed is to measure the
-analog voltage which needs to be reduced to less than 3 Vdc which is done with a small divider
-resistor network.
+## Signal Path & Wiring
 
-The chopper part takes the original chopper tube connector being plugged directly onto the pcb and
-its voltage level being reduced to less than 3.3Vdc as input to the MCU. The MCU will adjust the signal
-output to the SSR slightly as obtain a contact timing which is simular to the chopper tube and to
-assure is has an break before make SPDT contact behaviour is obtained. Driving the opto input side
-of  the SSR is easy and only requires a single resistor to limit the opto coupler led current.
+Since signal levels are quite low, and noise had to be minimized, I built an additional small PCB that mounts directly behind the signal input connector, with short leads to the SSR PCB and a single lead to the original analog input on the backplane.
 
-V2.2 PCB picture, it works fine but needed some tweaking on the physical size, connector position, some
-GPIO ports where changed, an JTAG port added, the seriel port was ommited and few resistors added.
-Mind the small pcb within the large one needs to be removed and it will be used behind the instrument
-input connector mounted on two short standoff's using the holes of the chopper tube bracket.
+A set of twisted control wires runs from the SSR PCB to a few free pins on backplane connector **J103**, which was originally intended for the auto-ranging board. On this connector, one additional connection is also needed: a jumper wire supplying +5V DC to the auto-ranging connector J103.
+
+## System Overview
+
+The current design consists of two parts, both controlled by the MCU:
+
+1. **Auto-ranging circuit**
+2. **SSR control circuit**
+
+For the MCU I used an **ESP32** (with both Bluetooth and WiFi disabled). The choice was based on prior projects and the large number of available I/O pins.
+
+### Handling Negative Control Voltages
+
+The 92 series meter uses negative control voltages (up to −15V DC), while the MCU's pins are only 3.3V-tolerant. To bridge this gap, the design uses **9 optocouplers**:
+
+- 8 for range selection
+- 1 for auto-range mode
+
+The analog voltage only needs to be measured after being reduced to below 3V, which is done with a small resistor divider network.
+
+### Chopper Timing Emulation
+
+The chopper section uses the original chopper tube connector, plugged directly into the PCB. Its voltage level is reduced to below 3.3V DC before being fed to the MCU as an input.
+
+The MCU adjusts the signal output to the SSRs to match a contact timing similar to that of the original chopper tube, ensuring a proper **break-before-make** SPDT contact behavior is maintained.
+
+Driving the opto input side of the SSR is simple — it only requires a single resistor to limit the LED current in the optocoupler.
+
+## PCB Revision Notes
+
+**V2.2 PCB** — Works well, but required some tweaks:
+
+- Adjusted physical size
+- Repositioned connectors
+- Changed some GPIO port assignments
+- Added a JTAG port
+- Removed the serial port
+- Added a few resistors
+
+> **Note:** The small PCB embedded within the larger board needs to be separated and used behind the instrument's input connector, mounted on two short standoffs using the existing holes from the chopper tube bracket.
 
 ![20230806_115556](https://github.com/ph-wheels/Boonton_92BD/assets/10708995/48fdfadd-2625-4f61-920f-065d6dd4d30e)
 
