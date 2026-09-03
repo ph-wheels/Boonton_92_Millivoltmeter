@@ -62,16 +62,22 @@ Driving the opto input side of the SSR is simple — it only requires a single r
 
 ![20230806_115556](https://github.com/ph-wheels/Boonton_92BD/assets/10708995/48fdfadd-2625-4f61-920f-065d6dd4d30e)
 
-This picture is from V2.2 PCB, V2.7 still to be build and will make a much cleaner impression !
-A few other pictures (in main folder) are given to provide some detail on the build & mods needed
+Build Notes & Firmware Update
 
-The small SSR PCB will only hold the original cap's which came from the chopper tube socket, mind the black stripe
-to be connected to the ground pad's of C1 & C3 and the SSR then using some small coax to be routed to the input
-connector and the analog main PCB. Reason for the cut out SSR PCB is to reduce PCB fabrication cost and the main
-PCB has so much real estate left unused that this was an obvious choice to make.
+This picture is from the V2.2 PCB — V2.7 has yet to be built and should give a much cleaner result. A few additional pictures (in the main folder) provide more detail on the build and required modifications.
 
-Additional as of aug-30-2026 a totally redesigned firmware is currently made available, early tests look promising,
-as it has resulted in a improved signal stability, cleaner code, solid isolation between tasks like auto-range,
-SSR driver, menu system with parameter storage due to the use of Espressif ESP32 FreeRTOS being a code game changer
+The small SSR PCB only holds the original capacitors that came from the chopper tube socket. Note that the black stripe must be connected to the ground pads of C1 and C3. The SSR is then connected via short coax cables to the input connector and to the main analog PCB.
 
-Have fun building
+The SSR PCB was cut down primarily to reduce PCB fabrication cost — the main PCB has so much unused real estate that separating it out was the obvious choice.
+
+Firmware Redesign (Aug 30, 2026)
+
+A completely redesigned firmware is now available. Early tests look promising, showing:
+
+Improved signal stability
+Cleaner code
+Solid task isolation between auto-range, SSR driver, and the menu system with parameter storage
+
+This was made possible largely thanks to Espressif's ESP32 FreeRTOS implementation — a real game-changer for the codebase.
+
+Have fun building!
