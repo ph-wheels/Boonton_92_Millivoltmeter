@@ -70,7 +70,9 @@ The small SSR PCB only holds the original capacitors that came from the chopper 
 
 The SSR PCB was cut down primarily to reduce PCB fabrication cost — the main PCB has so much unused real estate that separating it out was the obvious choice.
 
-Calibration of instrument it's self after de SSR mod can be done with the Boonton instrument calibration guidelines, once this is completed and no abnormal behaviour was found it's time to adjust the values for al and ah.
+## Calibration
+
+Calibration of instrument it's self after de SSR mod can be done with the Boonton instrument calibration guidelines, once this is completed and no abnormal behaviour was found it's time to adjust the values for al and ah used by the auto range circuit.
 
 This can easily be done by selecting the 1000mV range, apply a input signal of 1030 mV and read the ADC value with the 'a' command of the menu, the amount displayed will be your ah value.
 
