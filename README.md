@@ -82,6 +82,8 @@ Next type al xxx <cr> (where xxx is the value obtained in the last step) and ah 
 
 Than check if they have been entered correctly by typing 'a' <cr>, that's all !!
 
+## Latest firmware experiances
+
 Firmware Redesign (Aug 30, 2026)
 
 A completely redesigned firmware is now available. Early tests look promising, showing:
