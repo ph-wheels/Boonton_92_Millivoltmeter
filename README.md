@@ -78,7 +78,9 @@ This can easily be done by selecting the 1000mV range, apply a input signal of 1
 
 Then repeat the same procedure but apply a input signal of 413 mV and read the ADC with the 'a' command of the menu, the amount displayed will be your al value.
 
-Next type al xxx <cr> (where xxx is the value obtained in the last step) and ah yyy <cr> (where yyy is the value obtained in the first step)
+These value should be validate with a DVM at the back side terminals, if they are off more than a few mV than your calibration if probably off.
+
+Next type 'al xxx' <cr> (where xxx is the value obtained in the last step) and 'ah yyy' <cr> (where yyy is the value obtained in the first step)
 
 Than check if they have been entered correctly by typing 'a' <cr>, that's all !!
 
@@ -92,6 +94,6 @@ Improved signal stability
 Cleaner code
 Solid task isolation between auto-range, SSR driver, and the menu system with parameter storage
 
-This was made possible largely thanks to Espressif's ESP32 FreeRTOS implementation — a real game-changer for the codebase.
+This was made possible largely thanks to Espressif's ESP32 FreeRTOS implementation (with help of Claude) — a real game-changer for the codebase.
 
 Have fun building!
