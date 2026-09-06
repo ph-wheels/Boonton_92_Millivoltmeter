@@ -10,7 +10,7 @@
 * and creating a modern replacement for it using the ESP32 platform.
 * this to prevent an excellent piece of test equipment from being scrapped 
 * due to the unavailability of the original mechanical chopper.
-* current FW 3.0.4 replaces 1.6b1 and is based on HW PCB 2.7
+* current FW 3.0.7 replaces 1.6b1 and is based on HW PCB 2.7
 */
 #include <stdio.h>
 #include <string.h>
@@ -49,7 +49,7 @@
 #define IN_PIN_C_2        GPIO_NUM_16   // inputs from the 92BD's internal chooper connector
 #define IN_PIN_C_1        GPIO_NUM_17   // inputs from the 92BD's internal chooper connector
 #define IN_PIN_Auto       GPIO_NUM_5    // enable auto ranging system
-#define IN_PIN_CMD        GPIO_NUM_2    // active-low: LOW = enable ESP_LOG output, HIGH = silence it
+//#define IN_PIN_Opt        GPIO_NUM_2    /// optional input for future use, not currently used
 
 #define OUTPUT_ACTIVE_LOW  1   // outputs: ON = pin driven low
 #define INPUT_ACTIVE_LOW   1   // inputs:  active = pin read low
@@ -67,24 +67,26 @@
 #define SCAN_PERIOD_US       10600U   // 94 Hz +/- 1% scan/chopper rate
 #define DEAD_TIME_DEFAULT_US 120U     // was 1060U -- capped at 500us max per requirement
 #define DEAD_TIME_MIN_US     40U
-#define DEAD_TIME_MAX_US     200U     // was 5000U -- hard ceiling now matches the default cap
+#define DEAD_TIME_MAX_US     200U     // was 200U -- hard ceiling now matches the default cap
 
-#define VERSION "3.0.5"      // 3.0.0 initial freeRTOS implementation
+#define VERSION "3.0.7"      // 3.0.0 initial freeRTOS implementation
                              // 3.0.1 adjusted selectable range of various parameter for NVS
                              // 3.0.2cleanup of menu wording / layot
                              // 3.0.3 dropped usage of input CMD & M42
                              // 3.0.4 added log gate functionality
                              // 3.0.5 conditional usage of GPIO_NUM_14 
                              //       or GPIO_NUM_23 for OUT_PIN_1000mV based on PCB_REV_2_2 define
+                             // 3.0.6 added range_hyst_mv to menu and NVS, added range_settle_ms to menu and NVS,
+                             // 3.0.7 added l y/n option, default & power-on logging off
 
 #define NVS_KEY_DEADTIME     "dead_time_us"
 #define NVS_KEY_ADC_LOW      "adc_low_mv"
 #define NVS_KEY_ADC_HIGH     "adc_high_mv"
 #define NVS_KEY_RANGE_SETTLE "range_settle_ms"
 
-#define ADC_LOW_MIN_MV       0
+#define ADC_LOW_MIN_MV       300
 #define ADC_LOW_MAX_MV       600
-#define ADC_HIGH_MIN_MV      0
+#define ADC_HIGH_MIN_MV      1000
 #define ADC_HIGH_MAX_MV      2000
 
 #define RANGE_SETTLE_MIN_MS  10
@@ -115,8 +117,8 @@ static const char *TAG = "92BD";
 
 /* ================= Shared runtime-adjustable state ================= */
 static volatile uint32_t s_dead_time_us   = DEAD_TIME_DEFAULT_US;
-static volatile int32_t  s_adc_low_mv     = 200;    // range floor, mV
-static volatile int32_t  s_adc_high_mv    = 1800;   // range ceiling, mV
+static volatile int32_t  s_adc_low_mv     = 400;    // range floor, mV
+static volatile int32_t  s_adc_high_mv    = 1700;   // range ceiling, mV
 static volatile int32_t  s_adc_last_mv    = 0;      // last calibrated reading
 static volatile int8_t   s_adc_range_stat = 0;      // -1 / 0 / +1
 static volatile bool     s_input_fault    = false;  // both inputs active simultaneously
@@ -124,7 +126,7 @@ static volatile int32_t  s_range_hyst_mv  = 50;     // extra margin beyond al/ah
 static volatile uint32_t s_range_settle_ms = 150;   // default, overridden by NVS if present
 static bool s_auto_was_active = false;              // tracks Auto's previous state, for edge detection
 static volatile uint8_t s_adc_range_index = 0;
-static bool s_log_enabled = false;                  // mirrors IN_PIN_CMD; starts silent until first poll
+static bool s_log_enabled = false;                  // logging off by default at every boot, no NVS
 
 static TaskHandle_t s_io_task_handle = NULL;
 
@@ -225,19 +227,6 @@ static void auto_range_update(int8_t status)
         range_apply(s_adc_range_index + 1);
     } else if (mv < (s_adc_low_mv - hyst) && s_adc_range_index > 0) {
         range_apply(s_adc_range_index - 1);
-    }
-}
-
-static void log_gate_update(void)
-{
-    bool want_enabled = input_is_active(IN_PIN_CMD);   // active-low: LOW = enabled
-    if (want_enabled != s_log_enabled) {
-        s_log_enabled = want_enabled;
-        esp_log_level_set("*", want_enabled ? ESP_LOG_INFO : ESP_LOG_NONE);
-        // Note: this line itself only prints if logs are already enabled at the moment it runs
-        if (want_enabled) {
-            ESP_LOGI(TAG, "ESP_LOG output enabled via IN_PIN_CMD");
-        }
     }
 }
 
@@ -438,13 +427,14 @@ static void print_menu(void)
     printf("s                Show status\r\n");
     printf("d                Show dead_time_us\r\n");
     printf("d  <us>  (120)   Set dead_time_us (%u-%u), saved to NVS\r\n", DEAD_TIME_MIN_US, DEAD_TIME_MAX_US);
-    printf("al <mv>  (310)   Set ADC low threshold (mV), saved to NVS\r\n");
-    printf("ah <mv>  (1670)  Set ADC high threshold (mV), saved to NVS\r\n");
+    printf("al <mv>  (490)   Set ADC low threshold (mV), saved to NVS\r\n");
+    printf("ah <mv>  (1600)  Set ADC high threshold (mV), saved to NVS\r\n");
     printf("a                Show ADC reading + range status\r\n");
     printf("rs               Show range_settle_ms\r\n");
     printf("rs <ms>  (150)   Set range_settle_ms (%u-%u), saved to NVS\r\n", RANGE_SETTLE_MIN_MS, RANGE_SETTLE_MAX_MS);
     printf("rh <mv>  (10)    Set range hysteresis (mV), saved to NVS\r\n");
     printf("rng <0-7>        Manually force range index (bypasses Auto)\r\n");
+    printf("l  y/n           Enable/disable ESP_LOG output (default: off, not saved)\r\n");
     printf("                 Advised  value's in (), changing dead_time requires calibration !\r\n> ");
     printf("h                Help.\r\n> ");
     fflush(stdout);
@@ -482,6 +472,19 @@ static void handle_command(char *line)
             printf("\r\nadc_low_mv set to %ld (%s)\r\n", (long)val, ok ? "saved" : "SAVE FAILED");
         } else {
             printf("\r\nInvalid value (range %d-%d)\r\n", ADC_LOW_MIN_MV, ADC_LOW_MAX_MV);
+        }
+    } else if (line[0] == 'l' && line[1] == ' ') {
+        char c = line[2];
+        if (c == 'y' || c == 'Y') {
+            s_log_enabled = true;
+            esp_log_level_set("*", ESP_LOG_INFO);
+            printf("\r\nLogging enabled\r\n");
+        } else if (c == 'n' || c == 'N') {
+            s_log_enabled = false;
+            esp_log_level_set("*", ESP_LOG_NONE);
+            printf("\r\nLogging disabled\r\n");
+        } else {
+            printf("\r\nUsage: l y  or  l n\r\n");
         }
     } else if (strncmp(line, "ah ", 3) == 0) {
         int32_t val;
@@ -563,7 +566,6 @@ static void menu_task(void *pvParameters)
             }
         }
         fflush(stdout);
-        log_gate_update();
     }
 }
 
@@ -623,7 +625,7 @@ void app_main(void)
 
     // Inputs (active-low -> internal pull-up)
     gpio_config_t in_conf = {
-        .pin_bit_mask = (1ULL << IN_PIN_C_2) | (1ULL << IN_PIN_C_1) | (1ULL << IN_PIN_Auto) | (1ULL << IN_PIN_CMD),
+        .pin_bit_mask = (1ULL << IN_PIN_C_2) | (1ULL << IN_PIN_C_1) | (1ULL << IN_PIN_Auto),
         .mode = GPIO_MODE_INPUT,
     #if INPUT_ACTIVE_LOW
         .pull_up_en = GPIO_PULLUP_ENABLE,
@@ -654,8 +656,7 @@ void app_main(void)
     uart_param_config(UART_PORT_NUM, &uart_config);
     uart_driver_install(UART_PORT_NUM, UART_BUF_SIZE * 2, 0, 0, NULL, 0);
 
-    s_log_enabled = input_is_active(IN_PIN_CMD);
-    esp_log_level_set("*", s_log_enabled ? ESP_LOG_INFO : ESP_LOG_NONE);
+    esp_log_level_set("*", ESP_LOG_NONE);   // silent until explicitly enabled via menu
 
     // Task watchdog
     esp_task_wdt_config_t twdt_config = {
