@@ -12,7 +12,7 @@ As part of another project, I became interested in solid-state relays (SSRs) tha
 
 That's when the idea came up: replace the chopper tube with two SSRs (both housed in a single physical package). My original MCU-based auto-ranging extension board was redesigned into a new PCB that would handle both:
 
-- The (already working) auto-ranging function
+- The (already working) auto-ranging function, inital version ran on Arduino PCB
 - The drive circuit for the SSRs
 
 ## Signal Path & Wiring
