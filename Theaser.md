@@ -8,6 +8,6 @@ ESP32 vroom is going to be around for some time and conversion boards with more 
 
 Next main issue with the ESP32-C3 dev board is that it's lacking i/o pins so an extra 3-8 decoder will be needed
 
-And the main reason is that on Ali-Express one can buy ESP32 vroom with an USB-C connector and this solves all my current issue
+another reason is that one can buy on Ali-Express a ESP32 vroom with the USB-C connector and this solves all my current issue
 
-So V2.7 will be final and gerbers will get updated, if not already done to this PCB.
+So PCB V2.7 will be final one with it's gerbers and may get updated as needed, so far I have not seen any issue's with this PCB.
