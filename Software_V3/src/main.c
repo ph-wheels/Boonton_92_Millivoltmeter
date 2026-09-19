@@ -28,7 +28,7 @@
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
 
-#define PCB_REV_2_2       1
+//#define PCB_REV_2_2       1
 
 /* ================= Pin configuration ================= */
 #define OUT_PIN_Ph_A      GPIO_NUM_19   // phase A output may need to be swapped with phase B for syncronous chopper operation
